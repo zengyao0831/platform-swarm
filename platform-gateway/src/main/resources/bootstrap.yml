@@ -1,0 +1,64 @@
+# Tomcat
+server:
+  port: 9090
+
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: platform-gateway
+  profiles:
+    # 环境配置
+    active: dev
+  main:
+    # 相同bean是否覆盖
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        # 服务注册地址
+        server-addr: 8.135.101.182:12102
+      config:
+        # 配置中心地址
+        server-addr: 8.135.101.182:12102
+        # 配置文件格式
+        file-extension: yml
+        # 共享配置
+        shared-configs:
+          - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+        namespace: aaaa
+        group: DEFAULT_GROUP
+    sentinel:
+      # 取消控制台懒加载 直接启动就与控制台产生心跳
+      eager: true
+      transport:
+        # 控制台地址
+        dashboard: 192.168.1.220:8080
+      # sentinel 持久化到 nacos 配置
+      datasource:
+        # 名字自定义
+        snr:
+          nacos:
+            serverAddr: ${spring.cloud.nacos.config.server-addr}
+            dataId: ${spring.application.name}-flow-rules
+            groupId: ${spring.cloud.nacos.config.group}
+            namespace: ${spring.cloud.nacos.config.namespace}
+            rule_type: flow
+            dataType: json
+
+
+#      datasource:
+#        ds1:
+#          nacos:
+#            server-addr: 192.168.1.220:8848
+#            dataId: sentinel-platform-gateway
+#            groupId: DEFAULT_GROUP
+#            data-type: json
+#            rule-type: flow
+
+#---- actuator 端点启用和暴露 --------
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: '*'
